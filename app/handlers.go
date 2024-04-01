@@ -3,8 +3,12 @@ package app
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
+	"github.com/quartzeast/go-simple-banking/errs"
 	"github.com/quartzeast/go-simple-banking/service"
 )
 
@@ -29,4 +33,20 @@ func (c *CustomerHandlers) getAllCustomers(w http.ResponseWriter, r *http.Reques
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(customers)
 	}
+}
+
+func (c *CustomerHandlers) getCustomer(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["customer_id"]
+
+	customer, err := c.service.GetCustomer(id)
+	if e, ok := err.(*errs.AppError); ok {
+		w.WriteHeader(e.Code)
+		fmt.Fprintln(w, e.Message)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(customer)
 }

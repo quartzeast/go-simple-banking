@@ -17,4 +17,5 @@ type Customer struct {
 // 定义一个端口就像定义一个协议；任何遵循这个协议的组件都应该能够连接到它
 type CustomerRepository interface {
 	FindAll() ([]Customer, error)
+	ById(string) (*Customer, error)
 }

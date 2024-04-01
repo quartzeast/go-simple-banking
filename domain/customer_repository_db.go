@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/quartzeast/go-simple-banking/errs"
 )
 
 type CustomerRepositoryDb struct {
@@ -34,6 +35,25 @@ func (c CustomerRepositoryDb) FindAll() ([]Customer, error) {
 		customers = append(customers, c)
 	}
 	return customers, nil
+}
+
+func (c CustomerRepositoryDb) ById(id string) (*Customer, error) {
+
+	findByIdSQL := "select customer_id, name, city, zipcode, date_of_birth, status from customers where customer_id = ?"
+
+	row := c.db.QueryRow(findByIdSQL, id)
+	var customer Customer
+	err := row.Scan(&customer.Id, &customer.Name, &customer.City, &customer.ZipCode, &customer.BirthDate, &customer.Status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFoundError("Customer not found")
+		} else {
+			log.Println("Error while querying customers table " + err.Error())
+			return nil, errs.NewUnexpectedError("Unexpected database error")
+		}
+	}
+
+	return &customer, nil
 }
 
 func NewCustomerRepositoryDb() CustomerRepositoryDb {
