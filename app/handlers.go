@@ -3,10 +3,9 @@ package app
 import (
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/quartzeast/go-simple-banking/service"
 )
 
 type Customer struct {
@@ -15,16 +14,13 @@ type Customer struct {
 	ZipCode string `json:"zipcode" xml:"zipcode"`
 }
 
-func greet(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello World!!")
+// 5. CustomerHandlers 依赖 Service Port
+type CustomerHandlers struct {
+	service service.CustomerService
 }
 
-func getAllCustomers(w http.ResponseWriter, r *http.Request) {
-	customers := []Customer{
-		{Name: "John", City: "New York", ZipCode: "10001"},
-		{Name: "Jane", City: "Paris", ZipCode: "75001"},
-		{Name: "Bob", City: "Berlin", ZipCode: "10115"},
-	}
+func (c *CustomerHandlers) getAllCustomers(w http.ResponseWriter, r *http.Request) {
+	customers, _ := c.service.GetAllCustomers()
 
 	if r.Header.Get("Content-Type") == "application/xml" {
 		w.Header().Set("Content-Type", "application/xml")
@@ -33,13 +29,4 @@ func getAllCustomers(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(customers)
 	}
-}
-
-func getCustomer(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Fprint(w, vars["customer_id"])
-}
-
-func createCustomer(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "createCustomer")
 }
