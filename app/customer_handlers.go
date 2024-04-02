@@ -17,9 +17,10 @@ type Customer struct {
 	ZipCode string `json:"zipcode" xml:"zipcode"`
 }
 
-// 5. CustomerHandlers 依赖 Service Port
+// 5. CustomerHandlers 依赖 Service Port，CustomerHandlers 中使用 service service.CustomerService
+// 表明其依赖业务逻辑提供的服务（通过接口这个合约），而不去考虑具体的实现
 type CustomerHandlers struct {
-	service service.CustomerService
+	service service.CustomerService // 这里就是一个 contract，表明 CustomerHandlers 依赖 service.CustomerService
 }
 
 func (c *CustomerHandlers) getAllCustomers(w http.ResponseWriter, r *http.Request) {

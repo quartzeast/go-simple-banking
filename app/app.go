@@ -13,7 +13,8 @@ func Start() {
 	router := mux.NewRouter()
 	// 6. wiring
 	// ch := CustomerHandlers{service: service.NewCustomerService(domain.NewCustomerRepositoryStub())}
-	ch := CustomerHandlers{service: service.NewCustomerService(domain.NewCustomerRepositoryDb())}
+	// REST Handlers，负责驱动业务逻辑，依赖 service
+	ch := CustomerHandlers{service: service.NewCustomerService(domain.NewCustomerRepository())}
 
 	// define routes
 	router.HandleFunc("/customers", ch.getAllCustomers).Methods(http.MethodGet)

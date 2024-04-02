@@ -56,7 +56,7 @@ func (c CustomerRepositoryDb) ById(id string) (*Customer, error) {
 	return &customer, nil
 }
 
-func NewCustomerRepositoryDb() CustomerRepositoryDb {
+func NewCustomerRepository() CustomerRepository {
 	db, err := sql.Open("mysql", "root:root123@tcp(localhost:3306)/banking")
 	if err != nil {
 		panic(err)
