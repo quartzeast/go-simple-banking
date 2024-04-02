@@ -2,11 +2,11 @@ package domain
 
 import (
 	"database/sql"
-	"log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/quartzeast/go-simple-banking/errs"
+	"github.com/quartzeast/go-simple-banking/logger"
 )
 
 type CustomerRepositoryDb struct {
@@ -19,7 +19,7 @@ func (c CustomerRepositoryDb) FindAll() ([]Customer, error) {
 
 	rows, err := c.db.Query(findAllSQL)
 	if err != nil {
-		log.Println("Error while querying customers table " + err.Error())
+		logger.Error("Error while querying customers table " + err.Error())
 		return nil, err
 	}
 
@@ -29,7 +29,7 @@ func (c CustomerRepositoryDb) FindAll() ([]Customer, error) {
 		var c Customer
 		err := rows.Scan(&c.Id, &c.Name, &c.City, &c.ZipCode, &c.BirthDate, &c.Status)
 		if err != nil {
-			log.Println("Error while querying customers table " + err.Error())
+			logger.Error("Error while querying customers table " + err.Error())
 			return nil, err
 		}
 		customers = append(customers, c)
@@ -48,7 +48,7 @@ func (c CustomerRepositoryDb) ById(id string) (*Customer, error) {
 		if err == sql.ErrNoRows {
 			return nil, errs.NewNotFoundError("Customer not found")
 		} else {
-			log.Println("Error while querying customers table " + err.Error())
+			logger.Error("Error while querying customers table " + err.Error())
 			return nil, errs.NewUnexpectedError("Unexpected database error")
 		}
 	}
