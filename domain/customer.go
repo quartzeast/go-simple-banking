@@ -2,12 +2,12 @@ package domain
 
 // 1. 创建领域对象（domain object）
 type Customer struct {
-	Id        string
-	Name      string
-	City      string
-	ZipCode   string
-	BirthDate string
-	Status    string
+	Id        string `db:"customer_id"`
+	Name      string `db:"name"`
+	City      string `db:"city"`
+	ZipCode   string `db:"zipcode"`
+	BirthDate string `db:"date_of_birth"`
+	Status    string `db:"status"`
 }
 
 // 2. 定义 CustomerRepository 接口，在业务逻辑边界创建端口

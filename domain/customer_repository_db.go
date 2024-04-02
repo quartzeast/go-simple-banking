@@ -5,12 +5,13 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"github.com/quartzeast/go-simple-banking/errs"
 	"github.com/quartzeast/go-simple-banking/logger"
 )
 
 type CustomerRepositoryDb struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
 func (c CustomerRepositoryDb) FindAll() ([]Customer, error) {
@@ -24,16 +25,12 @@ func (c CustomerRepositoryDb) FindAll() ([]Customer, error) {
 	}
 
 	customers := make([]Customer, 0)
-
-	for rows.Next() {
-		var c Customer
-		err := rows.Scan(&c.Id, &c.Name, &c.City, &c.ZipCode, &c.BirthDate, &c.Status)
-		if err != nil {
-			logger.Error("Error while querying customers table " + err.Error())
-			return nil, err
-		}
-		customers = append(customers, c)
+	err = sqlx.StructScan(rows, &customers)
+	if err != nil {
+		logger.Error("Error while scanning customers table " + err.Error())
+		return nil, err
 	}
+
 	return customers, nil
 }
 
@@ -57,7 +54,7 @@ func (c CustomerRepositoryDb) ById(id string) (*Customer, error) {
 }
 
 func NewCustomerRepository() CustomerRepository {
-	db, err := sql.Open("mysql", "root:root123@tcp(localhost:3306)/banking")
+	db, err := sqlx.Open("mysql", "root:root123@tcp(localhost:3306)/banking")
 	if err != nil {
 		panic(err)
 	}
