@@ -10,16 +10,11 @@ import (
 	"github.com/quartzeast/go-simple-banking/service"
 )
 
-type Customer struct {
-	Name    string `json:"name" xml:"name"`
-	City    string `json:"city" xml:"city"`
-	ZipCode string `json:"zipcode" xml:"zipcode"`
-}
-
-// 5. CustomerHandlers 依赖 Service Port，CustomerHandlers 中使用 service service.CustomerService
-// 表明其依赖业务逻辑提供的服务（通过接口这个合约），而不去考虑具体的实现
+// 5. CustomerHandlers 依赖业务逻辑领域提供的 CustomerService 以完成其功能
+// 在结构体字段中使用 service.CustomerService 就相当于定义了一个 contract，
+// 要求业务逻辑提供 GetAllCustomers 和 GetCustomer 两项能力
 type CustomerHandlers struct {
-	service service.CustomerService // 这里就是一个 contract，表明 CustomerHandlers 依赖 service.CustomerService
+	service service.CustomerService
 }
 
 func (c *CustomerHandlers) getAllCustomers(w http.ResponseWriter, r *http.Request) {
