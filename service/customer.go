@@ -1,26 +1,49 @@
 package service
 
-import "github.com/quartzeast/go-simple-banking/domain"
+import (
+	"github.com/quartzeast/go-simple-banking/domain"
+	"github.com/quartzeast/go-simple-banking/dto"
+)
 
 // CustomerService 定义了一个 合约 contract
 // 表示中心的业务逻辑可以对外提供 Customer 服务，表明我可以提供 GetAllCustomers 和 GetCustomer 两个服务
 type CustomerService interface {
-	GetAllCustomers() ([]domain.Customer, error)
-	GetCustomer(string) (*domain.Customer, error)
+	GetAllCustomers(string) ([]dto.CustomerResponse, error)
+	GetCustomer(string) (*dto.CustomerResponse, error)
 }
 
 // 4. 业务逻辑实现 CustomerService port（这是 Primary port），并且依赖 repository
-// 所以首先创建 primary port，然后创建实现，然后注入依赖（repository）
 type DefaultCustomerService struct {
 	repo domain.CustomerRepository // 这也是一个合约，表示 DefaultCustomerService 依赖 某个 Repository 提供的能力，但不去考虑具体的实现
 }
 
-func (s DefaultCustomerService) GetAllCustomers() ([]domain.Customer, error) {
-	return s.repo.FindAll()
+func (s DefaultCustomerService) GetAllCustomers(status string) ([]dto.CustomerResponse, error) {
+	if status == "active" {
+		status = "1"
+	} else if status == "inactive" {
+		status = "0"
+	} else {
+		status = ""
+	}
+
+	customers, err := s.repo.FindAll(status)
+	if err != nil {
+		return nil, err
+	}
+	response := make([]dto.CustomerResponse, 0)
+	for _, c := range customers {
+		response = append(response, c.ToDTO())
+	}
+	return response, err
 }
 
-func (s DefaultCustomerService) GetCustomer(id string) (*domain.Customer, error) {
-	return s.repo.ById(id)
+func (s DefaultCustomerService) GetCustomer(id string) (*dto.CustomerResponse, error) {
+	c, err := s.repo.ById(id)
+	if err != nil {
+		return nil, err
+	}
+	response := c.ToDTO()
+	return &response, nil
 }
 
 func NewCustomerService(repository domain.CustomerRepository) CustomerService {

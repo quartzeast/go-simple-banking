@@ -2,6 +2,8 @@ package domain
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -14,21 +16,21 @@ type CustomerRepositoryDb struct {
 	db *sqlx.DB
 }
 
-func (c CustomerRepositoryDb) FindAll() ([]Customer, error) {
+func (c CustomerRepositoryDb) FindAll(status string) ([]Customer, error) {
+	var err error
+	customers := make([]Customer, 0)
 
-	findAllSQL := "select customer_id, name, city, zipcode, date_of_birth, status from customers"
-
-	rows, err := c.db.Query(findAllSQL)
-	if err != nil {
-		logger.Error("Error while querying customers table " + err.Error())
-		return nil, err
+	if status == "" {
+		findAllSQL := "select customer_id, name, city, zipcode, date_of_birth, status from customers"
+		err = c.db.Select(&customers, findAllSQL)
+	} else {
+		findAllSQL := "select customer_id, name, city, zipcode, date_of_birth, status from customers where status = ?"
+		err = c.db.Select(&customers, findAllSQL, status)
 	}
 
-	customers := make([]Customer, 0)
-	err = sqlx.StructScan(rows, &customers)
 	if err != nil {
-		logger.Error("Error while scanning customers table " + err.Error())
-		return nil, err
+		logger.Error("Error while querying customers table " + err.Error())
+		return nil, errs.NewUnexpectedError("Unexpected database error")
 	}
 
 	return customers, nil
@@ -54,7 +56,14 @@ func (c CustomerRepositoryDb) ById(id string) (*Customer, error) {
 }
 
 func NewCustomerRepository() CustomerRepository {
-	db, err := sqlx.Open("mysql", "root:root123@tcp(localhost:3306)/banking")
+	dbUser := os.Getenv("DB_USER")
+	dbPasswd := os.Getenv("DB_PASSWD")
+	dbAddr := os.Getenv("DB_ADDR")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPasswd, dbAddr, dbPort, dbName)
+
+	db, err := sqlx.Open("mysql", dataSource)
 	if err != nil {
 		panic(err)
 	}

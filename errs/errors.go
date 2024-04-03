@@ -24,3 +24,9 @@ func NewUnexpectedError(message string) *AppError {
 func (err *AppError) Error() string {
 	return err.Message
 }
+
+func (e AppError) AsMessage() *AppError {
+	return &AppError{
+		Message: e.Message,
+	}
+}
