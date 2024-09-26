@@ -33,3 +33,16 @@ func (d CustomerRepositoryDB) FindAll() ([]Customer, error) {
 
 	return customers, nil
 }
+
+func (d CustomerRepositoryDB) FindByID(id string) (*Customer, error) {
+	findByIDSQL := "SELECT id, name, city, postcode, birth_date, status FROM customers WHERE id = ?"
+
+	var customer Customer
+	err := d.client.QueryRow(findByIDSQL, id).
+		Scan(&customer.ID, &customer.Name, &customer.City, &customer.Postcode, &customer.BirthDate, &customer.Status)
+	if err != nil {
+		return nil, fmt.Errorf("error when scanning customer: %v", err)
+	}
+
+	return &customer, nil
+}

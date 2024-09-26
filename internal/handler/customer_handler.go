@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -34,4 +35,18 @@ func (ch *CustomerHandler) GetAllCustomer(w http.ResponseWriter, r *http.Request
 
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(customers)
+}
+
+func (ch *CustomerHandler) GetCustomer(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	customer, err := ch.service.GetCustomer(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintln(w, err.Error())
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(customer)
 }

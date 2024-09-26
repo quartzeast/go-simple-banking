@@ -7,6 +7,7 @@ import (
 
 type CustomerService interface {
 	GetAllCustomer() ([]dto.CustomerResponse, error)
+	GetCustomer(string) (*dto.CustomerResponse, error)
 }
 
 type DefaultCustomerService struct {
@@ -27,4 +28,13 @@ func (s DefaultCustomerService) GetAllCustomer() ([]dto.CustomerResponse, error)
 		response = append(response, customer.ToDTO())
 	}
 	return response, nil
+}
+
+func (s DefaultCustomerService) GetCustomer(id string) (*dto.CustomerResponse, error) {
+	customer, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	response := customer.ToDTO()
+	return &response, nil
 }

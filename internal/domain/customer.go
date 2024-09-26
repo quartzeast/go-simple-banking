@@ -4,6 +4,7 @@ import "github.com/quartzeast/go-simple-banking/internal/dto"
 
 type CustomerRepository interface {
 	FindAll() ([]Customer, error)
+	FindByID(string) (*Customer, error)
 }
 
 type Customer struct {
@@ -28,7 +29,7 @@ func (c Customer) ToDTO() dto.CustomerResponse {
 		ID:        c.ID,
 		Name:      c.Name,
 		City:      c.City,
-		Postcode:   c.Postcode,
+		Postcode:  c.Postcode,
 		BirthDate: c.BirthDate,
 		Status:    c.statusAsText(),
 	}

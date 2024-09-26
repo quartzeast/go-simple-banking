@@ -36,7 +36,8 @@ func Start() {
 	// wiring
 	dbClient := db.GetDBClient()
 	ch := handler.NewCustomerHandler(service.NewCustomerService(domain.NewCustomerRepositoryDB(dbClient)))
-	mux.HandleFunc("/customers", ch.GetAllCustomer)
+	mux.HandleFunc("GET /customers", ch.GetAllCustomer)
+	mux.HandleFunc("GET /customers/{id}", ch.GetCustomer)
 
 	log.Println("Starting HTTP server on port 8090")
 	log.Fatalln(http.ListenAndServe(":8090", mux))
