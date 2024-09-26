@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"encoding/xml"
+	"log"
 	"net/http"
 
 	"github.com/quartzeast/go-simple-banking/internal/service"
@@ -17,7 +18,13 @@ func NewCustomerHandler(service service.CustomerService) *CustomerHandler {
 }
 
 func (ch *CustomerHandler) GetAllCustomer(w http.ResponseWriter, r *http.Request) {
-	customers, _ := ch.service.GetAllCustomer()
+	customers, err := ch.service.GetAllCustomer()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal server error"))
+		return
+	}
 
 	if r.Header.Get("Content-Type") == "application/xml" {
 		w.Header().Add("Content-Type", "application/xml")

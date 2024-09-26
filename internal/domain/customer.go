@@ -10,7 +10,7 @@ type Customer struct {
 	ID        string
 	Name      string
 	City      string
-	Zipcode   string
+	Postcode  string
 	BirthDate string
 	Status    string
 }
@@ -28,7 +28,7 @@ func (c Customer) ToDTO() dto.CustomerResponse {
 		ID:        c.ID,
 		Name:      c.Name,
 		City:      c.City,
-		Zipcode:   c.Zipcode,
+		Postcode:   c.Postcode,
 		BirthDate: c.BirthDate,
 		Status:    c.statusAsText(),
 	}
