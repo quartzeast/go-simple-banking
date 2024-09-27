@@ -1,52 +1,53 @@
 package handler
 
 import (
-	"encoding/json"
-	"encoding/xml"
-	"fmt"
-	"log"
+	"database/sql"
+	"errors"
 	"net/http"
 
+	"github.com/quartzeast/go-simple-banking/internal/pkg/apierr"
+	"github.com/quartzeast/go-simple-banking/internal/pkg/log"
+	"github.com/quartzeast/go-simple-banking/internal/response"
 	"github.com/quartzeast/go-simple-banking/internal/service"
 )
 
 type CustomerHandler struct {
+	logger  *log.Logger
 	service service.CustomerService
 }
 
-func NewCustomerHandler(service service.CustomerService) *CustomerHandler {
-	return &CustomerHandler{service}
+func NewCustomerHandler(logger *log.Logger, service service.CustomerService) *CustomerHandler {
+	return &CustomerHandler{
+		logger:  logger,
+		service: service,
+	}
 }
 
-func (ch *CustomerHandler) GetAllCustomer(w http.ResponseWriter, r *http.Request) {
-	customers, err := ch.service.GetAllCustomer()
+func (h *CustomerHandler) GetAllCustomer(w http.ResponseWriter, r *http.Request) {
+	customers, err := h.service.GetAllCustomer()
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal server error"))
+		h.logger.Error("get all customer failed", "error", err.Error())
+		response.Error(w, apierr.NewAPIError(apierr.CodeUnknownError, err))
 		return
 	}
 
-	if r.Header.Get("Content-Type") == "application/xml" {
-		w.Header().Add("Content-Type", "application/xml")
-		xml.NewEncoder(w).Encode(customers)
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(customers)
+	response.OK(w, http.StatusOK, customers)
 }
 
-func (ch *CustomerHandler) GetCustomer(w http.ResponseWriter, r *http.Request) {
+func (h *CustomerHandler) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	customer, err := ch.service.GetCustomer(id)
+	customer, err := h.service.GetCustomer(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintln(w, err.Error())
+		h.logger.Error("get customer failed", "id", id, "error", err.Error())
+		if errors.Is(err, sql.ErrNoRows) {
+			response.Error(w, apierr.NewAPIError(apierr.CodeNotFound, err))
+			return
+		}
+
+		response.Error(w, apierr.NewAPIError(apierr.CodeUnknownError, err))
 		return
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(customer)
+	response.OK(w, http.StatusOK, customer)
 }

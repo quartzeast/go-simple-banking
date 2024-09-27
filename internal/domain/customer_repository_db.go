@@ -18,7 +18,7 @@ func (d CustomerRepositoryDB) FindAll() ([]Customer, error) {
 
 	rows, err := d.client.Query(findAllSQL)
 	if err != nil {
-		return nil, fmt.Errorf("error when querying all customers: %v", err)
+		return nil, fmt.Errorf("error when querying all customers: %w", err)
 	}
 
 	customers := make([]Customer, 0)
@@ -26,7 +26,7 @@ func (d CustomerRepositoryDB) FindAll() ([]Customer, error) {
 		var customer Customer
 		err := rows.Scan(&customer.ID, &customer.Name, &customer.City, &customer.Postcode, &customer.BirthDate, &customer.Status)
 		if err != nil {
-			return nil, fmt.Errorf("error when scanning customer: %v", err)
+			return nil, fmt.Errorf("error when scanning customer: %w", err)
 		}
 		customers = append(customers, customer)
 	}
@@ -41,8 +41,7 @@ func (d CustomerRepositoryDB) FindByID(id string) (*Customer, error) {
 	err := d.client.QueryRow(findByIDSQL, id).
 		Scan(&customer.ID, &customer.Name, &customer.City, &customer.Postcode, &customer.BirthDate, &customer.Status)
 	if err != nil {
-		return nil, fmt.Errorf("error when scanning customer: %v", err)
+		return nil, fmt.Errorf("error when scanning customer: %w", err)
 	}
-
 	return &customer, nil
 }
