@@ -94,7 +94,6 @@ func (l *Logger) log(ctx context.Context, level slog.Level, msg string, args ...
 	var pc uintptr
 	var pcs [1]uintptr
 	// skip [runtime.Callers, this function, this function's caller]
-	// NOTE: 这里修改 skip 为 4，*slog.log 源码中 skip 为 3
 	runtime.Callers(3, pcs[:])
 	pc = pcs[0]
 	r := slog.NewRecord(time.Now(), level, msg, pc)

@@ -38,8 +38,12 @@ func Start() {
 	// wiring
 	dbClient := db.GetDBClient()
 	ch := handler.NewCustomerHandler(logger, service.NewCustomerService(domain.NewCustomerRepositoryDB(dbClient)))
+	ah := handler.NewAccountHandler(logger, service.NewAccountService(domain.NewAccountRepositoryDB(dbClient)))
+
 	mux.HandleFunc("GET /customers", ch.GetAllCustomer)
 	mux.HandleFunc("GET /customers/{id}", ch.GetCustomer)
+
+	mux.HandleFunc("POST /customers/{id}/account", ah.NewAccount)
 
 	address := os.Getenv("SERVER_ADDRESS")
 	port := os.Getenv("SERVER_PORT")
