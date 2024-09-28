@@ -3,8 +3,8 @@ package domain
 import "github.com/quartzeast/go-simple-banking/internal/dto"
 
 type CustomerRepository interface {
-	FindAll() ([]Customer, error)
-	FindByID(string) (*Customer, error)
+	FindAll(status string) ([]Customer, error)
+	FindByID(id string) (*Customer, error)
 }
 
 type Customer struct {

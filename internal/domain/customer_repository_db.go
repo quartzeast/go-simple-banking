@@ -13,10 +13,18 @@ func NewCustomerRepositoryDB(client *sql.DB) CustomerRepositoryDB {
 	return CustomerRepositoryDB{client}
 }
 
-func (d CustomerRepositoryDB) FindAll() ([]Customer, error) {
-	findAllSQL := "SELECT id, name, city, postcode, birth_date, status FROM customers"
+func (d CustomerRepositoryDB) FindAll(status string) ([]Customer, error) {
+	var err error
+	var rows *sql.Rows
 
-	rows, err := d.client.Query(findAllSQL)
+	if status == "" {
+		findAllSQL := "SELECT id, name, city, postcode, birth_date, status FROM customers"
+		rows, err = d.client.Query(findAllSQL)
+	} else {
+		findAllSQL := "SELECT id, name, city, postcode, birth_date, status FROM customers where status = ?"
+		rows, err = d.client.Query(findAllSQL, status)
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("error when querying all customers: %w", err)
 	}

@@ -24,7 +24,8 @@ func NewCustomerHandler(logger *log.Logger, service service.CustomerService) *Cu
 }
 
 func (h *CustomerHandler) GetAllCustomer(w http.ResponseWriter, r *http.Request) {
-	customers, err := h.service.GetAllCustomer()
+	status := r.URL.Query().Get("status")
+	customers, err := h.service.GetAllCustomer(status)
 	if err != nil {
 		h.logger.Error("get all customer failed", "error", err.Error())
 		response.Error(w, apierr.NewAPIError(apierr.CodeUnknownError, err))

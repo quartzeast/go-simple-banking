@@ -6,8 +6,8 @@ import (
 )
 
 type CustomerService interface {
-	GetAllCustomer() ([]dto.CustomerResponse, error)
-	GetCustomer(string) (*dto.CustomerResponse, error)
+	GetAllCustomer(status string) ([]dto.CustomerResponse, error)
+	GetCustomer(id string) (*dto.CustomerResponse, error)
 }
 
 type DefaultCustomerService struct {
@@ -18,8 +18,16 @@ func NewCustomerService(repo domain.CustomerRepository) DefaultCustomerService {
 	return DefaultCustomerService{repo}
 }
 
-func (s DefaultCustomerService) GetAllCustomer() ([]dto.CustomerResponse, error) {
-	customers, err := s.repo.FindAll()
+func (s DefaultCustomerService) GetAllCustomer(status string) ([]dto.CustomerResponse, error) {
+	if status == "active" {
+		status = "1"
+	} else if status == "inactive" {
+		status = "0"
+	} else {
+		status = ""
+	}
+
+	customers, err := s.repo.FindAll(status)
 	if err != nil {
 		return nil, err
 	}
