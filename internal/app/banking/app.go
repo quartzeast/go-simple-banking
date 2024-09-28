@@ -44,6 +44,7 @@ func Start() {
 	mux.HandleFunc("GET /customers/{id}", ch.GetCustomer)
 
 	mux.HandleFunc("POST /customers/{id}/account", ah.NewAccount)
+	mux.HandleFunc("/customers/{customer_id}/account/{account_id}", ah.MakeTransaction)
 
 	address := os.Getenv("SERVER_ADDRESS")
 	port := os.Getenv("SERVER_PORT")

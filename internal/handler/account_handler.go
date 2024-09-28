@@ -36,9 +36,33 @@ func (h AccountHandler) NewAccount(w http.ResponseWriter, r *http.Request) {
 	account, err := h.service.NewAccount(request)
 	if err != nil {
 		h.logger.Error(err.Error())
-		response.Error(w, apierr.NewAPIError(apierr.CodeBadRequest, err))
+		response.Error(w, apierr.NewAPIError(apierr.CodeUnknownError, err))
 		return
 	}
 
 	response.OK(w, http.StatusCreated, account)
+}
+
+func (h AccountHandler) MakeTransaction(w http.ResponseWriter, r *http.Request) {
+	accountID := r.PathValue("account_id")
+	customerID := r.PathValue("customer_id")
+
+	// decode incoming request
+	var request dto.TransactionRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		h.logger.Error(err.Error())
+		response.Error(w, apierr.NewAPIError(apierr.CodeBadRequest, err))
+		return
+	}
+
+	request.AccountId = accountID
+	request.CustomerID = customerID
+	account, err := h.service.MakeTransaction(request)
+	if err != nil {
+		h.logger.Error(err.Error())
+		response.Error(w, apierr.NewAPIError(apierr.CodeUnknownError, err))
+		return
+	}
+
+	response.OK(w, http.StatusOK, account)
 }
